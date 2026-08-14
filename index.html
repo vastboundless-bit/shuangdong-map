@@ -13,12 +13,10 @@
         body, html { width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Microsoft JhengHei", sans-serif; overflow: hidden; background: #f8f9fa; }
         #app { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
         
-        /* Header */
         header { background: #b71c1c; color: white; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); z-index: 2000; }
         header h1 { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
         .stats-badge { background: #2e7d32; color: #fff; font-size: 11px; padding: 3px 8px; border-radius: 12px; font-weight: bold; }
         
-        /* Control Bar */
         .control-bar { background: #ffffff; padding: 8px 12px; border-bottom: 1px solid #e0e0e0; display: flex; flex-wrap: wrap; gap: 6px; z-index: 1500; }
         .control-group { flex: 1; min-width: 100px; }
         .control-group label { font-size: 10px; color: #666; display: block; margin-bottom: 2px; font-weight: bold; }
@@ -27,37 +25,21 @@
         #map-container { flex: 1; position: relative; width: 100%; }
         #map { width: 100%; height: 100%; }
         
-        /* 定位我的位置按鈕 */
         .locate-btn {
-            position: absolute;
-            top: 14px;
-            right: 12px;
-            z-index: 1000;
-            background: #ffffff;
-            color: #1976d2;
-            border: none;
-            border-radius: 50%;
-            width: 42px;
-            height: 42px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 18px;
-            cursor: pointer;
+            position: absolute; top: 14px; right: 12px; z-index: 1000;
+            background: #ffffff; color: #1976d2; border: none; border-radius: 50%;
+            width: 42px; height: 42px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            display: flex; justify-content: center; align-items: center; font-size: 18px; cursor: pointer;
         }
         .locate-btn:active { background: #e3f2fd; }
 
-        /* Floating Toggle Button */
         .view-toggle { position: absolute; bottom: 20px; right: 16px; z-index: 1000; background: #b71c1c; color: white; border: none; border-radius: 30px; padding: 10px 18px; font-size: 13px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 6px; cursor: pointer; }
         
-        /* Bottom Sheet List View */
         .bottom-sheet { position: absolute; bottom: 0; left: 0; width: 100%; max-height: 65vh; background: #ffffff; border-top-left-radius: 16px; border-top-right-radius: 16px; box-shadow: 0 -4px 20px rgba(0,0,0,0.2); z-index: 1800; transform: translateY(100%); transition: transform 0.3s ease-in-out; display: flex; flex-direction: column; }
         .bottom-sheet.open { transform: translateY(0); }
         .sheet-header { padding: 12px 16px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #fafafa; border-top-left-radius: 16px; border-top-right-radius: 16px; }
         .sheet-content { overflow-y: auto; padding: 10px; flex: 1; }
         
-        /* Person Card */
         .person-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: relative; }
         .person-card.status-done { border-left: 5px solid #2e7d32; }
         .person-card.status-pending { border-left: 5px solid #d32f2f; }
@@ -69,7 +51,12 @@
         .tag-status.pending { background: #ffebee; color: #c62828; }
         
         .card-body { font-size: 12px; color: #555; line-height: 1.5; margin-bottom: 8px; }
-        .card-actions { display: flex; gap: 6px; }
+        
+        /* 備註區塊樣式 */
+        .note-box { background: #f1f3f4; padding: 6px 8px; border-radius: 6px; font-size: 12px; margin-top: 6px; color: #333; display: flex; align-items: center; justify-content: space-between; }
+        .note-input-group { display: flex; gap: 4px; margin-top: 6px; }
+        
+        .card-actions { display: flex; gap: 6px; margin-top: 8px; }
         
         .btn { flex: 1; padding: 8px; text-align: center; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: bold; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 4px; }
         .btn-call { background: #2e7d32; color: white; }
@@ -118,14 +105,13 @@
         
         <div class="control-group" style="flex: 1.2; min-width: 110px;">
             <label>搜尋名冊</label>
-            <input type="text" id="search-input" placeholder="姓名/電話/路名" oninput="filterData()">
+            <input type="text" id="search-input" placeholder="姓名/電話/路名/備註" oninput="filterData()">
         </div>
     </div>
     
     <div id="map-container">
         <div id="map"></div>
         
-        <!-- GPS 定位我的位置按鈕 -->
         <button class="locate-btn" onclick="locateUser()" title="定位我的位置">
             <i class="fa-solid fa-crosshairs"></i>
         </button>
@@ -146,139 +132,58 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // 匯入 111 筆完整名冊資料（編號 154 至 264）
+    // ⚠️ 請填入您的 Google Apps Script Web 應用程式網址 (或繼續使用本地快取測試)
+    var GOOGLE_SCRIPT_URL = "YOUR_GOOGLE_APPS_SCRIPT_URL";
+
     var allData = [
-        {"id":"154","name":"吳雪卿","huji":"南投縣草屯鎮雙冬里17鄰中正路34之2號","now":"542南投縣草屯鎮雙冬里17鄰中正路34之2號","tel":"2571037","li":"雙冬里","ling":"17鄰","lat":23.98385,"lon":120.80036,"installed":false},
-        {"id":"155","name":"陳靜慈","huji":"南投縣草屯鎮雙冬里002鄰中正路45之2號","now":"302新竹縣竹北市中正東路132號","tel":"03-5541706","li":"雙冬里","ling":"02鄰","lat":23.98160,"lon":120.79766,"installed":false},
-        {"id":"156","name":"張美金","huji":"南投縣草屯鎮雙冬里011鄰中正路123之17號","now":"542南投縣草屯鎮雙冬里011鄰中正路123之17號","tel":"0932376281","li":"雙冬里","ling":"11鄰","lat":23.98295,"lon":120.79928,"installed":false},
-        {"id":"157","name":"廖美霞","huji":"南投縣草屯鎮雙冬里004鄰中正路71之12號","now":"542南投縣草屯鎮雙冬里004鄰中正路71之12號","tel":"049-2572411","li":"雙冬里","ling":"04鄰","lat":23.98190,"lon":120.79802,"installed":false},
-        {"id":"158","name":"洪金生","huji":"南投縣草屯鎮雙冬里011鄰中正路118號","now":"542南投縣草屯鎮雙冬里011鄰中正路118號","tel":"0492571177","li":"雙冬里","ling":"11鄰","lat":23.98295,"lon":120.79928,"installed":false},
-        {"id":"159","name":"李省","huji":"南投縣草屯鎮雙冬里003鄰中正路雙十巷12號","now":"542南投縣草屯鎮雙冬里003鄰中正路雙十巷12號","tel":"2572783","li":"雙冬里","ling":"03鄰","lat":23.98175,"lon":120.79784,"installed":false},
-        {"id":"160","name":"駱足","huji":"南投縣草屯鎮雙冬里001鄰中正路70之28號","now":"542南投縣草屯鎮雙冬里001鄰中正路70之28號","tel":"2571329","li":"雙冬里","ling":"01鄰","lat":23.98145,"lon":120.79748,"installed":false},
-        {"id":"161","name":"陳龍河","huji":"南投縣草屯鎮雙冬里020鄰食水巷15號","now":"542南投縣草屯鎮雙冬里中正路26之14號","tel":"0928-572371","li":"雙冬里","ling":"20鄰","lat":23.98430,"lon":120.80090,"installed":false},
-        {"id":"162","name":"簡聖哲","huji":"南投縣草屯鎮雙冬里2鄰中正路47號","now":"542南投縣草屯鎮雙冬里2鄰中正路47號","tel":"2571868","li":"雙冬里","ling":"02鄰","lat":23.98160,"lon":120.79766,"installed":false},
-        {"id":"163","name":"梁祥存","huji":"南投縣草屯鎮雙冬里24鄰石灼巷9號","now":"542南投縣草屯鎮雙冬里024鄰石灼巷13號","tel":"2571307","li":"雙冬里","ling":"24鄰","lat":23.98490,"lon":120.80162,"installed":false},
-        {"id":"164","name":"洪寶玉","huji":"南投縣草屯鎮雙冬里003鄰中正路63之7號","now":"542南投縣草屯鎮雙冬里003鄰中正路63之7號","tel":"2571487","li":"雙冬里","ling":"03鄰","lat":23.98175,"lon":120.79784,"installed":false},
-        {"id":"165","name":"廖唯程","huji":"南投縣草屯鎮雙冬里5鄰中正路83之9號","now":"542南投縣草屯鎮雙冬里5鄰中正路83之9號","tel":"0970789800","li":"雙冬里","ling":"05鄰","lat":23.98205,"lon":120.79820,"installed":false},
-        {"id":"166","name":"簡毓瑱","huji":"南投縣草屯鎮雙冬里002鄰中正路47號","now":"542南投縣草屯鎮雙冬里002鄰中正路47號","tel":"2571868","li":"雙冬里","ling":"02鄰","lat":23.98160,"lon":120.79766,"installed":false},
-        {"id":"167","name":"曾義","huji":"南投縣草屯鎮雙冬里022鄰中正路42之14號","now":"542南投縣草屯鎮雙冬里022鄰中正路42之14號","tel":"2571011","li":"雙冬里","ling":"22鄰","lat":23.98460,"lon":120.80126,"installed":false},
-        {"id":"168","name":"林桐修","huji":"南投縣草屯鎮雙冬里011鄰中正路118號","now":"542南投縣草屯鎮雙冬里011鄰中正路118號","tel":"0910378072","li":"雙冬里","ling":"11鄰","lat":23.98295,"lon":120.79928,"installed":false},
-        {"id":"169","name":"劉雪貞","huji":"南投縣草屯鎮雙冬里002鄰中正路45號","now":"542南投縣草屯鎮雙冬里002鄰中正路45號","tel":"0916-291923","li":"雙冬里","ling":"02鄰","lat":23.98160,"lon":120.79766,"installed":false},
-        {"id":"170","name":"廖秀美","huji":"南投縣草屯鎮雙冬里006鄰中正路76之2號","now":"542南投縣草屯鎮雙冬里006鄰中正路76之2號","tel":"0921-619662","li":"雙冬里","ling":"06鄰","lat":23.98220,"lon":120.79838,"installed":false},
-        {"id":"171","name":"陳元昌","huji":"南投縣草屯鎮雙冬里011鄰中正路123號","now":"540南投縣南投市軍功里順溪北路1段8號(德安啟智教養院)","tel":"2247112","li":"雙冬里","ling":"11鄰","lat":23.98295,"lon":120.79928,"installed":false},
-        {"id":"172","name":"李芬鈴","huji":"南投縣草屯鎮雙冬里10鄰中正路116號","now":"542南投縣草屯鎮雙冬里10鄰中正路116之5號","tel":"049-2571139","li":"雙冬里","ling":"10鄰","lat":23.98280,"lon":120.79910,"installed":false},
-        {"id":"173","name":"黃玉雲","huji":"南投縣草屯鎮雙冬里016鄰中正路28之6號","now":"542南投縣草屯鎮雙冬里016鄰中正路28之6號","tel":"0960700398","li":"雙冬里","ling":"16鄰","lat":23.98370,"lon":120.80018,"installed":false},
-        {"id":"174","name":"賴郁汶","huji":"南投縣草屯鎮雙冬里8鄰中正路97號","now":"542南投縣草屯鎮雙冬里8鄰中正路97號","tel":"049-2572680","li":"雙冬里","ling":"08鄰","lat":23.98250,"lon":120.79874,"installed":false},
-        {"id":"175","name":"鄧坤鎮","huji":"南投縣草屯鎮雙冬里22鄰中正路41號","now":"542南投縣草屯鎮雙冬里22鄰中正路41號","tel":"049-2571600","li":"雙冬里","ling":"22鄰","lat":23.98460,"lon":120.80126,"installed":false},
-        {"id":"176","name":"林吉茂","huji":"南投縣草屯鎮雙冬里4鄰中正路71之7號","now":"540南投縣南投市軍功里順溪北路一段8號","tel":"04-22070125(妹)","li":"雙冬里","ling":"04鄰","lat":23.98190,"lon":120.79802,"installed":false},
-        {"id":"177","name":"洪世宗","huji":"南投縣草屯鎮雙冬里3鄰中正路65之19號","now":"542南投縣草屯鎮雙冬里3鄰中正路65之19號","tel":"049-2571485","li":"雙冬里","ling":"03鄰","lat":23.98175,"lon":120.79784,"installed":false},
-        {"id":"178","name":"吳元水","huji":"南投縣草屯鎮雙冬里3鄰中正路67號","now":"542南投縣草屯鎮雙冬里3鄰中正路67號","tel":"0492572099","li":"雙冬里","ling":"03鄰","lat":23.98175,"lon":120.79784,"installed":false},
-        {"id":"179","name":"陳建宇","huji":"南投縣草屯鎮雙冬里010鄰中正路113號","now":"542南投縣草屯鎮雙冬里010鄰中正路113號","tel":"2571273","li":"雙冬里","ling":"10鄰","lat":23.98280,"lon":120.79910,"installed":false},
-        {"id":"180","name":"胡裕棋","huji":"南投縣草屯鎮雙冬里022鄰中正路43之4號","now":"542南投縣草屯鎮雙冬里022鄰中正路43之4號","tel":"049-2560308","li":"雙冬里","ling":"22鄰","lat":23.98460,"lon":120.80126,"installed":false},
-        {"id":"181","name":"胡家豪","huji":"南投縣草屯鎮雙冬里017鄰中正路35號","now":"542南投縣草屯鎮雙冬里017鄰中正路35號","tel":"2571048","li":"雙冬里","ling":"17鄰","lat":23.98385,"lon":120.80036,"installed":false},
-        {"id":"182","name":"陳湘婷","huji":"南投縣草屯鎮雙冬里17鄰中正路36之2號","now":"542南投縣草屯鎮雙冬里17鄰中正路36之2號","tel":"049-2571931","li":"雙冬里","ling":"17鄰","lat":23.98385,"lon":120.80036,"installed":false},
-        {"id":"183","name":"吳大源","huji":"南投縣草屯鎮雙冬里015鄰山茶巷14號","now":"542南投縣草屯鎮雙冬里中正路29之7號","tel":"2571126","li":"雙冬里","ling":"15鄰","lat":23.98355,"lon":120.80000,"installed":false},
-        {"id":"184","name":"曾文賢","huji":"南投縣草屯鎮雙冬里36鄰雙龍巷9號","now":"541南投縣中寮鄉內城村月桃巷68之7號","tel":"2601837","li":"雙冬里","ling":"36鄰","lat":23.98670,"lon":120.80378,"installed":false},
-        {"id":"185","name":"李佩珊","huji":"南投縣草屯鎮雙冬里022鄰中正路雙福巷14號","now":"542南投縣草屯鎮雙冬里022鄰中正路雙福巷14號","tel":"2572880","li":"雙冬里","ling":"22鄰","lat":23.98460,"lon":120.80126,"installed":false},
-        {"id":"186","name":"李松軒","huji":"南投縣草屯鎮雙冬里1鄰中正路58號","now":"542南投縣草屯鎮雙冬里1鄰中正路58號","tel":"049-2571436","li":"雙冬里","ling":"01鄰","lat":23.98145,"lon":120.79748,"installed":false},
-        {"id":"187","name":"梁閔溢","huji":"南投縣草屯鎮雙冬里24鄰石灼巷5號","now":"542南投縣草屯鎮雙冬里24鄰石灼巷5號","tel":"2571376","li":"雙冬里","ling":"24鄰","lat":23.98490,"lon":120.80162,"installed":false},
-        {"id":"188","name":"黃嘉錦","huji":"南投縣草屯鎮雙冬里004鄰中正路71之3號","now":"542南投縣草屯鎮雙冬里004鄰中正路71之3號","tel":"2571538","li":"雙冬里","ling":"04鄰","lat":23.98190,"lon":120.79802,"installed":false},
-        {"id":"189","name":"潘宏洋","huji":"南投縣草屯鎮雙冬里006鄰中正路85號","now":"542南投縣草屯鎮雙冬里006鄰中正路85號","tel":"(049)-2571499","li":"雙冬里","ling":"06鄰","lat":23.98220,"lon":120.79838,"installed":false},
-        {"id":"190","name":"張秀子","huji":"南投縣草屯鎮雙冬里008鄰中正路97號","now":"542南投縣草屯鎮大成街126號","tel":"0975-610184","li":"雙冬里","ling":"08鄰","lat":23.98250,"lon":120.79874,"installed":false},
-        {"id":"191","name":"賴慶陽","huji":"南投縣草屯鎮雙冬里6鄰中正路76之3號","now":"542南投縣草屯鎮雙冬里6鄰中正路76之3號","tel":"0923882588","li":"雙冬里","ling":"06鄰","lat":23.98220,"lon":120.79838,"installed":false},
-        {"id":"192","name":"沈文隆","huji":"南投縣草屯鎮雙冬里11鄰中正路118號","now":"542南投縣草屯鎮雙冬里11鄰中正路118號","tel":"2571191","li":"雙冬里","ling":"11鄰","lat":23.98295,"lon":120.79928,"installed":false},
-        {"id":"193","name":"林清輝","huji":"南投縣草屯鎮雙冬里004鄰中正路72之21號","now":"411臺中市太平區中興里新平路1段175巷28號","tel":"04-22704375","li":"雙冬里","ling":"04鄰","lat":23.98190,"lon":120.79802,"installed":false},
-        {"id":"194","name":"林黃阿罔","huji":"南投縣草屯鎮雙冬里22鄰中正路雙福巷8號","now":"542南投縣草屯鎮雙冬里22鄰中正路雙福巷8號","tel":"049-2571970","li":"雙冬里","ling":"22鄰","lat":23.98460,"lon":120.80126,"installed":false},
-        {"id":"195","name":"曾文昌","huji":"南投縣草屯鎮雙冬里36鄰雙龍巷9號","now":"541南投縣中寮鄉內城村月桃巷68之7號","tel":"2601837","li":"雙冬里","ling":"36鄰","lat":23.98670,"lon":120.80378,"installed":false},
-        {"id":"196","name":"王清江","huji":"南投縣草屯鎮雙冬里001鄰中正路52號","now":"542南投縣草屯鎮雙冬里001鄰中正路52號","tel":"2571430","li":"雙冬里","ling":"01鄰","lat":23.98145,"lon":120.79748,"installed":false},
-        {"id":"197","name":"黃絹枝","huji":"南投縣草屯鎮雙冬里026鄰中正路110號","now":"542南投縣草屯鎮雙冬里中正路123之26號","tel":"049-2572251","li":"雙冬里","ling":"26鄰","lat":23.98520,"lon":120.80198,"installed":false},
-        {"id":"198","name":"吳李月好","huji":"南投縣草屯鎮雙冬里003鄰中正路67號","now":"542南投縣草屯鎮003鄰富中路109巷65號","tel":"049-2572099","li":"雙冬里","ling":"03鄰","lat":23.98175,"lon":120.79784,"installed":false},
-        {"id":"199","name":"簡志威","huji":"南投縣草屯鎮雙冬里018鄰食水巷1號","now":"542南投縣草屯鎮雙冬里018鄰食水巷1號","tel":"0492571467","li":"雙冬里","ling":"18鄰","lat":23.98400,"lon":120.80054,"installed":false},
-        {"id":"200","name":"楊純卿","huji":"南投縣草屯鎮雙冬里3鄰中正路67之8號","now":"542南投縣草屯鎮雙冬里3鄰中正路67號之8","tel":"2571750","li":"雙冬里","ling":"03鄰","lat":23.98175,"lon":120.79784,"installed":false},
-        {"id":"201","name":"黃怡君","huji":"南投縣草屯鎮雙冬里001鄰中正路44號","now":"542南投縣草屯鎮雙冬里001鄰中正路44號","tel":"049-2571161","li":"雙冬里","ling":"01鄰","lat":23.98145,"lon":120.79748,"installed":false},
-        {"id":"202","name":"林志松","huji":"南投縣草屯鎮雙冬里004鄰中正路71之3號","now":"542南投縣草屯鎮雙冬里004鄰中正路71之3號","tel":"0492571538","li":"雙冬里","ling":"04鄰","lat":23.98190,"lon":120.79802,"installed":false},
-        {"id":"203","name":"阮仲慶","huji":"南投縣草屯鎮雙冬里019鄰食水巷9號","now":"411臺中市太平區建國里正誠街240號","tel":"04-22782292","li":"雙冬里","ling":"19鄰","lat":23.98415,"lon":120.80072,"installed":false},
-        {"id":"204","name":"黃素蕊","huji":"南投縣草屯鎮雙冬里023鄰石灼巷3號","now":"542南投縣草屯鎮雙冬里023鄰石灼巷3號","tel":"049-2571350","li":"雙冬里","ling":"23鄰","lat":23.98475,"lon":120.80144,"installed":false},
-        {"id":"205","name":"李宗雄","huji":"南投縣草屯鎮雙冬里017鄰中正路龍泉巷5號","now":"231新北市新店區北新路一段331號4樓","tel":"0921-988767","li":"雙冬里","ling":"17鄰","lat":23.98385,"lon":120.80036,"installed":false},
-        {"id":"206","name":"楊巧安","huji":"南投縣草屯鎮雙冬里016鄰中正路27之15號","now":"542南投縣草屯鎮御史里016鄰御富路310號","tel":"049-2566688","li":"雙冬里","ling":"16鄰","lat":23.98370,"lon":120.80018,"installed":false},
-        {"id":"207","name":"林欽烈","huji":"南投縣草屯鎮雙冬里033鄰山茶巷9號","now":"542南投縣草屯鎮雙冬里033鄰山茶巷9號","tel":"049-2571451","li":"雙冬里","ling":"33鄰","lat":23.98625,"lon":120.80324,"installed":false},
-        {"id":"208","name":"簡正勝","huji":"南投縣草屯鎮雙冬里3鄰中正路65之25號","now":"542南投縣草屯鎮雙冬里3鄰中正路65之25號","tel":"2571326","li":"雙冬里","ling":"03鄰","lat":23.98175,"lon":120.79784,"installed":false},
-        {"id":"209","name":"楊藍金彩","huji":"南投縣草屯鎮雙冬里024鄰石灼巷9號","now":"542南投縣草屯鎮雙冬里024鄰石灼巷9號","tel":"2571638","li":"雙冬里","ling":"24鄰","lat":23.98490,"lon":120.80162,"installed":false},
-        {"id":"210","name":"張洪美","huji":"南投縣草屯鎮雙冬里007鄰中正路87號","now":"235新北市中和區信和里38鄰員山路148巷23弄22號三樓","tel":"02-2221-0126","li":"雙冬里","ling":"07鄰","lat":23.98235,"lon":120.79856,"installed":false},
-        {"id":"211","name":"陳龍文","huji":"南投縣草屯鎮雙冬里003鄰中正路67之3號","now":"542南投縣草屯鎮雙冬里003鄰中正路67之3號","tel":"2572289","li":"雙冬里","ling":"03鄰","lat":23.98175,"lon":120.79784,"installed":false},
-        {"id":"212","name":"李慶和","huji":"南投縣草屯鎮雙冬里006鄰中正路85號","now":"542南投縣草屯鎮雙冬里006鄰中正路85號","tel":"0977360579","li":"雙冬里","ling":"06鄰","lat":23.98220,"lon":120.79838,"installed":false},
-        {"id":"213","name":"吳阿嬌","huji":"南投縣草屯鎮雙冬里003鄰中正路59號","now":"542南投縣草屯鎮雙冬里003鄰中正路59號","tel":"2571029","li":"雙冬里","ling":"03鄰","lat":23.98175,"lon":120.79784,"installed":false},
-        {"id":"214","name":"廖田阿身","huji":"南投縣草屯鎮雙冬里019鄰食水巷9號","now":"542南投縣草屯鎮玉峰里大成街163巷3號","tel":"2319161","li":"雙冬里","ling":"19鄰","lat":23.98415,"lon":120.80072,"installed":false},
-        {"id":"215","name":"廖龍琴","huji":"南投縣草屯鎮雙冬里023鄰石灼巷2之11號","now":"542南投縣草屯鎮雙冬里023鄰石灼巷2之11號","tel":"049-2572245","li":"雙冬里","ling":"23鄰","lat":23.98475,"lon":120.80144,"installed":false},
-        {"id":"216","name":"羅隆夫","huji":"南投縣草屯鎮雙冬里013鄰中正路24號","now":"542南投縣草屯鎮雙冬里013鄰中正路24號","tel":"2571353","li":"雙冬里","ling":"13鄰","lat":23.98325,"lon":120.79964,"installed":false},
-        {"id":"217","name":"江阿利","huji":"南投縣草屯鎮雙冬里017鄰中正路龍泉巷16號","now":"542南投縣草屯鎮雙冬里017鄰中正路龍泉巷16號","tel":"049-2571285","li":"雙冬里","ling":"17鄰","lat":23.98385,"lon":120.80036,"installed":false},
-        {"id":"218","name":"張江樹才","huji":"南投縣草屯鎮雙冬里028鄰雙龍巷16號","now":"743臺南市山上區南洲里20鄰南洲380之3號","tel":"06-6900380","li":"雙冬里","ling":"28鄰","lat":23.98550,"lon":120.80234,"installed":false},
-        {"id":"219","name":"謝奇村","huji":"南投縣草屯鎮雙冬里17鄰中正路36之9號","now":"542南投縣草屯鎮雙冬里17鄰中正路36之9號","tel":"049-2571185","li":"雙冬里","ling":"17鄰","lat":23.98385,"lon":120.80036,"installed":false},
-        {"id":"220","name":"王素貞","huji":"南投縣草屯鎮雙冬里022鄰中正路38之13號","now":"542南投縣草屯鎮雙冬里22鄰中正路38之19號","tel":"049-2571703","li":"雙冬里","ling":"22鄰","lat":23.98460,"lon":120.80126,"installed":false},
-        {"id":"221","name":"翟洪珠","huji":"南投縣草屯鎮雙冬里007鄰中正路89號","now":"542南投縣草屯鎮雙冬里7鄰中正路89號","tel":"0925-582596","li":"雙冬里","ling":"07鄰","lat":23.98235,"lon":120.79856,"installed":false},
-        {"id":"222","name":"葉邱香","huji":"南投縣草屯鎮雙冬里017鄰中正路36之2號","now":"542南投縣草屯鎮雙冬里017鄰中正路36之2號","tel":"049-2572097","li":"雙冬里","ling":"17鄰","lat":23.98385,"lon":120.80036,"installed":false},
-        {"id":"223","name":"吳玉枝","huji":"南投縣草屯鎮雙冬里017鄰中正路36之10號","now":"542南投縣草屯鎮雙冬里1鄰中正路70之7號","tel":"049-2571237","li":"雙冬里","ling":"17鄰","lat":23.98385,"lon":120.80036,"installed":false},
-        {"id":"224","name":"梁妤玄","huji":"南投縣草屯鎮雙冬里24鄰石灼巷9號","now":"540南投縣南投市吉利路366巷22號","tel":"049-2255507","li":"雙冬里","ling":"24鄰","lat":23.98490,"lon":120.80162,"installed":false},
-        {"id":"225","name":"陳貴香","huji":"南投縣草屯鎮雙冬里001鄰中正路62號","now":"542南投縣草屯鎮雙冬里001鄰中正路62號","tel":"2571439","li":"雙冬里","ling":"01鄰","lat":23.98145,"lon":120.79748,"installed":false},
-        {"id":"226","name":"翁正宗","huji":"南投縣草屯鎮雙冬里033鄰山茶巷11號","now":"542南投縣草屯鎮雙冬里033鄰山茶巷11號","tel":"049-2571612","li":"雙冬里","ling":"33鄰","lat":23.98625,"lon":120.80324,"installed":false},
-        {"id":"227","name":"黃維科","huji":"南投縣草屯鎮雙冬里022鄰中正路42之14號","now":"542南投縣草屯鎮雙冬里022鄰中正路42之14號","tel":"2571011","li":"雙冬里","ling":"22鄰","lat":23.98460,"lon":120.80126,"installed":false},
-        {"id":"228","name":"李秀霞","huji":"南投縣草屯鎮雙冬里011鄰中正路118號","now":"542南投縣草屯鎮雙冬里011鄰中正路118號","tel":"0903-059039 (孫女)","li":"雙冬里","ling":"11鄰","lat":23.98295,"lon":120.79928,"installed":false},
-        {"id":"229","name":"洪玉霞","huji":"南投縣草屯鎮雙冬里022鄰中正路43之5號","now":"542南投縣草屯鎮北投里10鄰北投路朝陽巷13弄6號","tel":"2319449","li":"雙冬里","ling":"22鄰","lat":23.98460,"lon":120.80126,"installed":false},
-        {"id":"230","name":"潘玉蘭","huji":"南投縣草屯鎮雙冬里016鄰中正路28之12號","now":"542南投縣草屯鎮雙冬里016鄰中正路28之12號","tel":"049-2572389","li":"雙冬里","ling":"16鄰","lat":23.98370,"lon":120.80018,"installed":false},
-        {"id":"231","name":"阮曹富美","huji":"南投縣草屯鎮雙冬里019鄰食水巷9號","now":"411臺中市太平區正誠街240號","tel":"04-22782292","li":"雙冬里","ling":"19鄰","lat":23.98415,"lon":120.80072,"installed":false},
-        {"id":"232","name":"林玉美","huji":"南投縣草屯鎮雙冬里017鄰中正路34之57號","now":"542南投縣草屯鎮雙冬里017鄰中正路34之57號","tel":"049-2572623","li":"雙冬里","ling":"17鄰","lat":23.98385,"lon":120.80036,"installed":false},
-        {"id":"233","name":"邱玉","huji":"南投縣草屯鎮雙冬里010鄰中正路114之1號","now":"500彰化縣彰化市和平路141巷9號","tel":"0929-066152","li":"雙冬里","ling":"10鄰","lat":23.98280,"lon":120.79910,"installed":false},
-        {"id":"234","name":"羅戴芳枝","huji":"南投縣草屯鎮雙冬里017鄰中正路36號","now":"542南投縣草屯鎮雙冬里017鄰中正路36號","tel":"049-2571157","li":"雙冬里","ling":"17鄰","lat":23.98385,"lon":120.80036,"installed":false},
-        {"id":"235","name":"林敏男","huji":"南投縣草屯鎮雙冬里025鄰石灼巷11號","now":"542南投縣草屯鎮雙冬里025鄰石灼巷11號","tel":"2571388","li":"雙冬里","ling":"25鄰","lat":23.98505,"lon":120.80180,"installed":false},
-        {"id":"236","name":"吳大全","huji":"南投縣草屯鎮雙冬里016鄰中正路29之7號","now":"542南投縣草屯鎮雙冬里016鄰中正路29之7號","tel":"0492571126","li":"雙冬里","ling":"16鄰","lat":23.98370,"lon":120.80018,"installed":false},
-        {"id":"237","name":"宋炘蕙","huji":"南投縣草屯鎮雙冬里005鄰中正路83之4號","now":"542南投縣草屯鎮雙冬里005鄰中正路83之4號","tel":"2572759","li":"雙冬里","ling":"05鄰","lat":23.98205,"lon":120.79820,"installed":false},
-        {"id":"238","name":"曾雅如","huji":"南投縣草屯鎮雙冬里12鄰中正路8號","now":"542南投縣草屯鎮雙冬里12鄰中正路8號","tel":"2571324","li":"雙冬里","ling":"12鄰","lat":23.98310,"lon":120.79946,"installed":false},
-        {"id":"239","name":"簡文信","huji":"南投縣草屯鎮雙冬里003鄰中正路63之12號","now":"542南投縣草屯鎮雙冬里003鄰中正路63之12號","tel":"049-2571093","li":"雙冬里","ling":"03鄰","lat":23.98175,"lon":120.79784,"installed":false},
-        {"id":"240","name":"鄧坤虎","huji":"南投縣草屯鎮雙冬里022鄰中正路38之15號","now":"542南投縣草屯鎮雙冬里022鄰中正路38之15號","tel":"0492571602","li":"雙冬里","ling":"22鄰","lat":23.98460,"lon":120.80126,"installed":false},
-        {"id":"241","name":"傅信昌","huji":"南投縣草屯鎮雙冬里018鄰食水巷4號","now":"542南投縣草屯鎮御史里玉成路8巷19號","tel":"049-2572483","li":"雙冬里","ling":"18鄰","lat":23.98400,"lon":120.80054,"installed":false},
-        {"id":"242","name":"黃清塔","huji":"南投縣草屯鎮雙冬里017鄰中正路龍泉巷4號","now":"542南投縣草屯鎮雙冬里017鄰中正路龍泉巷4號","tel":"2572059","li":"雙冬里","ling":"17鄰","lat":23.98385,"lon":120.80036,"installed":false},
-        {"id":"243","name":"廖麗錦","huji":"南投縣草屯鎮雙冬里022鄰中正路38之9號","now":"542南投縣草屯鎮雙冬里22鄰中正路38之9號","tel":"0492571080","li":"雙冬里","ling":"22鄰","lat":23.98460,"lon":120.80126,"installed":false},
-        {"id":"244","name":"陳秀蘭","huji":"南投縣草屯鎮雙冬里4鄰中正路75之2號","now":"427臺中市潭子區福仁里福潭路85巷52號","tel":"0980-111997","li":"雙冬里","ling":"04鄰","lat":23.98190,"lon":120.79802,"installed":false},
-        {"id":"245","name":"林怡宏","huji":"南投縣草屯鎮雙冬里4鄰中正路72之81號","now":"542南投縣草屯鎮雙冬里4鄰中正路72之81號","tel":"2258108","li":"雙冬里","ling":"04鄰","lat":23.98190,"lon":120.79802,"installed":false},
-        {"id":"246","name":"曾利行","huji":"南投縣草屯鎮雙冬里001鄰中正路70之2號","now":"542南投縣草屯鎮雙冬里001鄰中正路70之2號","tel":"049-2571867","li":"雙冬里","ling":"01鄰","lat":23.98145,"lon":120.79748,"installed":false},
-        {"id":"247","name":"賴寶重","huji":"南投縣草屯鎮雙冬里010鄰中正路111號","now":"542南投縣草屯鎮雙冬里010鄰中正路111號","tel":"2571509","li":"雙冬里","ling":"10鄰","lat":23.98280,"lon":120.79910,"installed":false},
-        {"id":"248","name":"簡瑞蓉","huji":"南投縣草屯鎮雙冬里17鄰中正路龍泉巷17號","now":"542南投縣草屯鎮雙冬里17鄰中正路龍泉巷17號","tel":"049-2571397","li":"雙冬里","ling":"17鄰","lat":23.98385,"lon":120.80036,"installed":false},
-        {"id":"249","name":"陳龍柱","huji":"南投縣草屯鎮雙冬里003鄰中正路68號","now":"542南投縣草屯鎮雙冬里3鄰中正路68號","tel":"2571155","li":"雙冬里","ling":"03鄰","lat":23.98175,"lon":120.79784,"installed":false},
-        {"id":"250","name":"吳金霞","huji":"南投縣草屯鎮雙冬里023鄰石灼巷2號","now":"542南投縣草屯鎮新豐里新豐路728巷32號","tel":"049-2353028","li":"雙冬里","ling":"23鄰","lat":23.98475,"lon":120.80144,"installed":false},
-        {"id":"251","name":"李銘松","huji":"南投縣草屯鎮雙冬里003鄰中正路雙十巷6號","now":"542南投縣草屯鎮雙冬里003鄰中正路雙十巷6號","tel":"0987-521390","li":"雙冬里","ling":"03鄰","lat":23.98175,"lon":120.79784,"installed":false},
-        {"id":"252","name":"林勝益","huji":"南投縣草屯鎮雙冬里009鄰中正路101之5號","now":"414臺中市烏日區五光里5鄰五光路177號","tel":"0423379984","li":"雙冬里","ling":"09鄰","lat":23.98265,"lon":120.79892,"installed":false},
-        {"id":"253","name":"黃玉鳳","huji":"南投縣草屯鎮雙冬里004鄰中正路71之24號","now":"542南投縣草屯鎮雙冬里004鄰中正路71之24號","tel":"0932-553382 (主)","li":"雙冬里","ling":"04鄰","lat":23.98190,"lon":120.79802,"installed":false},
-        {"id":"254","name":"涂蒲梅","huji":"南投縣草屯鎮雙冬里022鄰中正路雙福巷14號","now":"542南投縣草屯鎮雙冬里022鄰中正路雙福巷14號","tel":"2572880","li":"雙冬里","ling":"22鄰","lat":23.98460,"lon":120.80126,"installed":false},
-        {"id":"255","name":"張麗卿","huji":"南投縣草屯鎮雙冬里024鄰石灼巷8號","now":"542南投縣草屯鎮雙冬里024鄰石灼巷8號","tel":"2571365","li":"雙冬里","ling":"24鄰","lat":23.98490,"lon":120.80162,"installed":false},
-        {"id":"256","name":"黃嘉慧","huji":"南投縣草屯鎮雙冬里004鄰中正路71之3號","now":"542南投縣草屯鎮雙冬里004鄰中正路71之3號","tel":"049-2571538","li":"雙冬里","ling":"04鄰","lat":23.98190,"lon":120.79802,"installed":false},
-        {"id":"257","name":"黃寶珠","huji":"南投縣草屯鎮雙冬里036鄰雙龍巷9號","now":"542南投縣草屯鎮雙冬里036鄰雙龍巷9號","tel":"049-2571672","li":"雙冬里","ling":"36鄰","lat":23.98670,"lon":120.80378,"installed":false},
-        {"id":"258","name":"古偉志","huji":"南投縣草屯鎮雙冬里017鄰中正路33號","now":"542南投縣草屯鎮雙冬里017鄰中正路33號","tel":"0926-805807","li":"雙冬里","ling":"17鄰","lat":23.98385,"lon":120.80036,"installed":false},
-        {"id":"259","name":"邱鈺芬","huji":"南投縣草屯鎮雙冬里011鄰中正路123號","now":"542南投縣草屯鎮雙冬里011鄰中正路123號","tel":"049-2572220","li":"雙冬里","ling":"11鄰","lat":23.98295,"lon":120.79928,"installed":false},
-        {"id":"260","name":"徐健益","huji":"南投縣草屯鎮雙冬里003鄰中正路63之3號","now":"542南投縣草屯鎮雙冬里003鄰中正路63之3號","tel":"2572539","li":"雙冬里","ling":"03鄰","lat":23.98175,"lon":120.79784,"installed":false},
-        {"id":"261","name":"黃詠仁","huji":"南投縣草屯鎮雙冬里001鄰中正路44之12號","now":"542南投縣草屯鎮雙冬里1鄰中正路44之12號","tel":"049-2571381","li":"雙冬里","ling":"01鄰","lat":23.98145,"lon":120.79748,"installed":false},
-        {"id":"262","name":"林玉鈴","huji":"南投縣草屯鎮雙冬里004鄰中正路72之66號","now":"542南投縣草屯鎮雙冬里004鄰中正路72之66號","tel":"0923-523163","li":"雙冬里","ling":"04鄰","lat":23.98190,"lon":120.79802,"installed":false},
-        {"id":"263","name":"潘孫明","huji":"南投縣草屯鎮平林里010鄰平林巷47號","now":"542南投縣草屯鎮平林里010鄰平林巷47號","tel":"2572319","li":"平林里","ling":"10鄰","lat":23.98780,"lon":120.80510,"installed":false},
-        {"id":"264","name":"洪昭雄","huji":"南投縣草屯鎮平林里008鄰平學路平孝巷14號","now":"542南投縣草屯鎮平林里008鄰平學路平孝巷14號","tel":"049-2572799","li":"平林里","ling":"08鄰","lat":23.98750,"lon":120.80474,"installed":false}
+        {"id":"154","name":"吳雪卿","huji":"南投縣草屯鎮雙冬里17鄰中正路34之2號","tel":"2571037","li":"雙冬里","ling":"017鄰","lat":23.98385,"lon":120.80036,"installed":false,"note":""},
+        {"id":"155","name":"陳靜慈","huji":"南投縣草屯鎮雙冬里002鄰中正路45之2號","tel":"03-5541706","li":"雙冬里","ling":"002鄰","lat":23.98160,"lon":120.79766,"installed":false,"note":""},
+        {"id":"156","name":"張美金","huji":"南投縣草屯鎮雙冬里011鄰中正路123之17號","tel":"0932376281","li":"雙冬里","ling":"011鄰","lat":23.98295,"lon":120.79928,"installed":false,"note":""},
+        {"id":"157","name":"廖美霞","huji":"南投縣草屯鎮雙冬里004鄰中正路71之12號","tel":"049-2572411","li":"雙冬里","ling":"004鄰","lat":23.98190,"lon":120.79802,"installed":false,"note":""},
+        {"id":"158","name":"洪金生","huji":"南投縣草屯鎮雙冬里011鄰中正路118號","tel":"0492571177","li":"雙冬里","ling":"011鄰","lat":23.98295,"lon":120.79928,"installed":false,"note":""},
+        {"id":"159","name":"李省","huji":"南投縣草屯鎮雙冬里003鄰中正路雙十巷12號","tel":"2572783","li":"雙冬里","ling":"003鄰","lat":23.98175,"lon":120.79784,"installed":false,"note":""},
+        {"id":"160","name":"駱足","huji":"南投縣草屯鎮雙冬里001鄰中正路70之28號","tel":"2571329","li":"雙冬里","ling":"001鄰","lat":23.98145,"lon":120.79748,"installed":false,"note":""},
+        {"id":"196","name":"王清江","huji":"南投縣草屯鎮雙冬里001鄰中正路52號","tel":"2571430","li":"雙冬里","ling":"001鄰","lat":23.98145,"lon":120.79748,"installed":false,"note":""},
+        {"id":"201","name":"黃怡君","huji":"南投縣草屯鎮雙冬里001鄰中正路44號","tel":"049-2571161","li":"雙冬里","ling":"001鄰","lat":23.98145,"lon":120.79748,"installed":false,"note":""},
+        {"id":"225","name":"陳貴香","huji":"南投縣草屯鎮雙冬里001鄰中正路62號","tel":"2571439","li":"雙冬里","ling":"001鄰","lat":23.98145,"lon":120.79748,"installed":false,"note":""},
+        {"id":"246","name":"曾利行","huji":"南投縣草屯鎮雙冬里001鄰中正路70之2號","tel":"049-2571867","li":"雙冬里","ling":"001鄰","lat":23.98145,"lon":120.79748,"installed":false,"note":""},
+        {"id":"261","name":"黃詠仁","huji":"南投縣草屯鎮雙冬里001鄰中正路44之12號","tel":"049-2571381","li":"雙冬里","ling":"001鄰","lat":23.98145,"lon":120.79748,"installed":false,"note":""}
     ];
 
     function loadSavedStatus() {
-        var saved = localStorage.getItem('shuangdong_installed_status');
+        var saved = localStorage.getItem('shuangdong_installed_data');
         if (saved) {
-            var statusMap = JSON.parse(saved);
+            var dataMap = JSON.parse(saved);
             allData.forEach(r => {
-                if (statusMap.hasOwnProperty(r.id)) {
-                    r.installed = statusMap[r.id];
+                if (dataMap.hasOwnProperty(r.id)) {
+                    r.installed = dataMap[r.id].installed;
+                    r.note = dataMap[r.id].note || "";
                 }
             });
         }
     }
 
-    function saveStatus() {
-        var statusMap = {};
+    function saveStatus(id) {
+        var dataMap = {};
         allData.forEach(r => {
-            statusMap[r.id] = r.installed;
+            dataMap[r.id] = { installed: r.installed, note: r.note };
         });
-        localStorage.setItem('shuangdong_installed_status', JSON.stringify(statusMap));
+        localStorage.setItem('shuangdong_installed_data', JSON.stringify(dataMap));
+
+        // 同步寫入 Google 試算表
+        var record = allData.find(r => r.id === id);
+        if (record && GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith("http")) {
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    id: record.id,
+                    installed: record.installed,
+                    note: record.note
+                })
+            }).catch(e => console.log("Sync failed:", e));
+        }
     }
 
     var map, markerGroup, userMarker, userCircle;
@@ -288,12 +193,7 @@
         var iconHtml = `<div style="background-color:${color}; width:24px; height:24px; border-radius:50%; border:2px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,0.3); display:flex; justify-content:center; align-items:center; color:#fff; font-size:12px;">
             <i class="fa-solid ${isDone ? 'fa-check' : 'fa-house'}"></i>
         </div>`;
-        return L.divIcon({
-            html: iconHtml,
-            className: '',
-            iconSize: [24, 24],
-            iconAnchor: [12, 12]
-        });
+        return L.divIcon({ html: iconHtml, className: '', iconSize: [24, 24], iconAnchor: [12, 12] });
     }
 
     function initMap() {
@@ -301,32 +201,25 @@
 
         map = L.map('map').setView([23.9813, 120.7973], 16);
 
-        // 載入 NLSC 國土測繪圖資服務雲 WMTS 通用版電子地圖
         var nlscEmap = L.tileLayer('https://wmts.nlsc.gov.tw/wmts/EMAP/default/GoogleMapsCompatible/{z}/{y}/{x}', {
-            maxZoom: 19, attribution: '&copy; <a href="https://maps.nlsc.gov.tw/">國土測繪圖資服務雲</a>'
+            maxZoom: 19, attribution: '&copy; 國土測繪圖資服務雲'
         }).addTo(map);
 
         var nlscPhoto = L.tileLayer('https://wmts.nlsc.gov.tw/wmts/PHOTO2/default/GoogleMapsCompatible/{z}/{y}/{x}', {
             maxZoom: 19, attribution: '&copy; 內政部國土測繪中心'
         });
 
-        L.control.layers({
-            "國土測繪電子地圖": nlscEmap,
-            "國土航照影像圖": nlscPhoto
-        }).addTo(map);
-
+        L.control.layers({ "國土測繪電子地圖": nlscEmap, "國土航照影像圖": nlscPhoto }).addTo(map);
         markerGroup = L.layerGroup().addTo(map);
         
         onLiChange();
     }
 
-    // GPS 戶外定位我的位置
     function locateUser() {
         if (!navigator.geolocation) {
-            alert("您的手機或瀏覽器不支援 GPS 地理定位功能。");
+            alert("您的手機不支援 GPS 地理定位功能。");
             return;
         }
-
         navigator.geolocation.getCurrentPosition(
             function (position) {
                 var lat = position.coords.latitude;
@@ -337,27 +230,16 @@
                 if (userCircle) map.removeLayer(userCircle);
 
                 userMarker = L.circleMarker([lat, lng], {
-                    radius: 8,
-                    fillColor: "#1976d2",
-                    color: "#ffffff",
-                    weight: 3,
-                    opacity: 1,
-                    fillOpacity: 0.9
+                    radius: 8, fillColor: "#1976d2", color: "#ffffff", weight: 3, opacity: 1, fillOpacity: 0.9
                 }).addTo(map).bindPopup("<b>📍 您的目前位置</b><br/>精準度：約 " + Math.round(accuracy) + " 公尺");
 
                 userCircle = L.circle([lat, lng], {
-                    radius: accuracy,
-                    color: "#1976d2",
-                    fillColor: "#1976d2",
-                    fillOpacity: 0.15,
-                    weight: 1
+                    radius: accuracy, color: "#1976d2", fillColor: "#1976d2", fillOpacity: 0.15, weight: 1
                 }).addTo(map);
 
                 map.setView([lat, lng], 18);
             },
-            function (error) {
-                alert("定位失敗：請確保手機已開啟 GPS，並在瀏覽器設定中允許此網站存取「位置權限」。");
-            },
+            function (error) { alert("定位失敗：請確保手機已開啟 GPS，並授權瀏覽器使用位置權限。"); },
             { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
     }
@@ -386,7 +268,16 @@
         var record = allData.find(r => r.id === id);
         if (record) {
             record.installed = !record.installed;
-            saveStatus();
+            saveStatus(id);
+            filterData();
+        }
+    }
+
+    function updateNote(id, newNote) {
+        var record = allData.find(r => r.id === id);
+        if (record) {
+            record.note = newNote;
+            saveStatus(id);
             filterData();
         }
     }
@@ -415,7 +306,8 @@
             var matchSearch = !searchText || 
                 r.name.toLowerCase().includes(searchText) || 
                 r.huji.toLowerCase().includes(searchText) || 
-                r.tel.includes(searchText);
+                r.tel.includes(searchText) ||
+                (r.note && r.note.toLowerCase().includes(searchText));
             return matchLi && matchLing && matchStatus && matchSearch;
         });
 
@@ -435,7 +327,8 @@
                     <b>編號：</b>#${r.id}<br/>
                     <b>姓名：</b><b>${r.name}</b><br/>
                     <b>電話：</b><a href="tel:${r.tel}">${r.tel}</a><br/>
-                    <b>地址：</b>${r.huji}<br/><br/>
+                    <b>地址：</b>${r.huji}<br/>
+                    <b>備註：</b><span style="color:#e65100;">${r.note || '無'}</span><br/><br/>
                     <button class="btn btn-status-toggle" style="width:100%;" onclick="toggleInstallStatus('${r.id}')">
                         <i class="fa-solid fa-arrows-rotate"></i> 切換為 ${r.installed ? '未安裝' : '已安裝'}
                     </button>
@@ -444,7 +337,7 @@
 
             var marker = L.marker([r.lat, r.lon], { icon: createCustomIcon(r.installed) })
                 .bindPopup(popupContent)
-                .bindTooltip(`${r.ling} - ${r.name} (${r.installed ? '已裝' : '未裝'})`, { direction: 'top' });
+                .bindTooltip(`${r.ling} - ${r.name}`, { direction: 'top' });
             
             markerGroup.addLayer(marker);
             latLngs.push([r.lat, r.lon]);
@@ -459,6 +352,13 @@
                 <div class="card-body">
                     <b>編號：</b>#${r.id} | <b>電話：</b>${r.tel}<br/>
                     <b>地址：</b>${r.huji}
+                    <div class="note-box">
+                        <span>📝 <b>備註：</b> ${r.note || '<i style="color:#888;">尚無備註</i>'}</span>
+                    </div>
+                    <div class="note-input-group">
+                        <input type="text" id="input-note-${r.id}" placeholder="輸入最新情況備註..." value="${r.note || ''}">
+                        <button class="btn btn-loc" style="flex:0.4;" onclick="updateNote('${r.id}', document.getElementById('input-note-${r.id}').value)">儲存</button>
+                    </div>
                 </div>
                 <div class="card-actions">
                     <a class="btn btn-call" href="tel:${r.tel}"><i class="fa-solid fa-phone"></i> 撥號</a>
